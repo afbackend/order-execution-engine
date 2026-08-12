@@ -1,9 +1,11 @@
-package venue
+package order
 
 import (
 	"errors"
 	"fmt"
 )
+
+const SCALE = 100
 
 var ErrInvalidPrice = errors.New("invalid order price")
 var ErrInvalidQty = errors.New("invalid quantity")
@@ -17,18 +19,18 @@ const (
 )
 
 type Order struct {
-	id     int64
-	price  int64
-	qty    int64
-	symbol string
-	side   Side
+	ID     int64
+	Price  int64
+	Qty    int64
+	Symbol string
+	Side   Side
 }
 
 type Fill struct {
-	id      int64
-	price   int64
-	qty     int64
-	orderID int64
+	ID      int64
+	Price   int64
+	Qty     int64
+	OrderID int64
 }
 
 func NewOrder(id int64, price int64, qty int64, symbol string, side Side) (*Order, error) {
@@ -45,9 +47,5 @@ func NewOrder(id int64, price int64, qty int64, symbol string, side Side) (*Orde
 		return nil, fmt.Errorf("fail to create new order: %w", ErrInvalidSymbol)
 	}
 
-	return &Order{id, price, qty, symbol, side}, nil
-}
-
-func Execute(order *Order) (*Fill, error) {
-	return &Fill{1, order.price, order.qty, order.id}, nil
+	return &Order{ID: id, Price: price, Qty: qty, Symbol: symbol, Side: side}, nil
 }
