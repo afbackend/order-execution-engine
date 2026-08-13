@@ -100,7 +100,7 @@ func TestRisk(t *testing.T) {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
-		got, err := acc.Reserve(*ord)
+		got, err := acc.Reserve(ord)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -131,7 +131,7 @@ func TestRisk(t *testing.T) {
 		}
 
 		before := acc.exposure
-		got, err := acc.Reserve(*ord)
+		got, err := acc.Reserve(ord)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -158,7 +158,7 @@ func TestRisk(t *testing.T) {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
-		got, err := acc.Reserve(*ord1)
+		got, err := acc.Reserve(ord1)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -172,7 +172,7 @@ func TestRisk(t *testing.T) {
 		}
 
 		before := acc.exposure
-		got, err = acc.Reserve(*ord2)
+		got, err = acc.Reserve(ord2)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
