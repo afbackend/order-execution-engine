@@ -9,6 +9,29 @@ import (
 var ErrInvalidBuyingPower = errors.New("invalid buying power")
 var ErrNotionalOverflow = errors.New("notional overflow")
 
+type RiskStatus int8
+
+const (
+	Pending RiskStatus = iota
+	Accepted
+	Rejected
+)
+
+type RiskReason int8
+
+const (
+	None RiskReason = iota
+	InsufficientBuyingPower
+	UnexpectedError
+)
+
+type RiskResult struct {
+	ID      int64
+	OrderID int64
+	Status  RiskStatus
+	Reason  RiskReason
+}
+
 type Account struct {
 	ID          int64
 	buyingPower int64
@@ -34,7 +57,7 @@ func (ac *Account) SetBuyingPower(value int64) error {
 	return nil
 }
 
-func (ac *Account) Reserve(ord order.Order) (bool, error) {
+func (ac *Account) Reserve(ord *order.Order) (bool, error) {
 	n, err := notional(ord.Price, ord.Qty, order.SCALE)
 
 	if err != nil {
