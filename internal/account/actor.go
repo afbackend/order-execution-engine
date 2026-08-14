@@ -36,7 +36,7 @@ func NewActor(accID int64, buyingPower int64) (*Actor, error) {
 	return &Actor{acc: acc, in: in, out: out, done: done}, nil
 }
 
-func (a *Actor) ProcessOrder(ord *order.Order) {
+func (a *Actor) processOrder(ord *order.Order) {
 	s, err := a.acc.Reserve(ord)
 	r := &RiskResult{OrderID: ord.ID}
 
@@ -76,7 +76,7 @@ func (a *Actor) Run(ctx context.Context) {
 	for {
 		select {
 		case ord := <-a.in:
-			a.ProcessOrder(ord)
+			a.processOrder(ord)
 		case <-ctx.Done():
 			return
 		}
