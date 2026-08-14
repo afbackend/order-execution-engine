@@ -26,13 +26,6 @@ type Order struct {
 	Side   Side
 }
 
-type Fill struct {
-	ID      int64
-	Price   int64
-	Qty     int64
-	OrderID int64
-}
-
 func NewOrder(id int64, price int64, qty int64, symbol string, side Side) (*Order, error) {
 
 	if price <= 0 {
