@@ -37,6 +37,9 @@ func NewActor(accID int64, buyingPower int64) (*Actor, error) {
 }
 
 func (a *Actor) processOrder(ord *order.Order) {
+	// Unguarded send: the gateway always drains until a.out closes. Assumes the
+	// processor's Write never blocks forever; main's shutdown deadline bounds it.
+
 	s, err := a.acc.Reserve(ord)
 	r := &RiskResult{OrderID: ord.ID}
 
