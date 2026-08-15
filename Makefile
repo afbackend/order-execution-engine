@@ -1,8 +1,9 @@
-.PHONY: help run test race cover vet fmt fmt-check tidy check clean
+.PHONY: help run test race cover vet lint fmt fmt-check tidy check clean
 
 .DEFAULT_GOAL := help
 
 BIN := bin/riskd
+STATICCHECK := honnef.co/go/tools/cmd/staticcheck@2025.1.1
 
 help:       ## list available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -27,10 +28,13 @@ cover:      ## run tests and print a per-function coverage report
 vet:        ## static analysis built into the toolchain
 	go vet ./...
 
+lint:       ## staticcheck (pinned version, no install step needed)
+	go run $(STATICCHECK) ./...
+
 fmt:        ## format all code (gofmt is non-negotiable in Go)
 	go fmt ./...
 
-fmt-check:  ## fail if any file is not gofmt-formatted (what CI runs)
+fmt-check:  ## fail if any file is not gofmt-formatted (does not rewrite)
 	@out=$$(gofmt -l .); \
 	if [ -n "$$out" ]; then \
 		echo "These files are not gofmt-formatted:"; \
@@ -44,4 +48,4 @@ tidy:       ## sync go.mod / go.sum
 clean:      ## remove build and coverage artifacts
 	rm -rf bin coverage.out
 
-check: fmt-check vet race ## the pre-commit gate: mirrors CI exactly
+check: fmt-check vet lint race ## the pre-commit gate: CI runs exactly this target

@@ -2,9 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   test:
@@ -18,17 +16,6 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Verify formatting
-        run: |
-          fmt_out=$(gofmt -l .)
-          if [ -n "$fmt_out" ]; then
-            echo "These files are not gofmt-formatted:"
-            echo "$fmt_out"
-            exit 1
-          fi
-
-      - name: Vet
-        run: go vet ./...
-
-      - name: Test with race detector
-        run: go test -race ./...
+      # Runs the same target developers run locally, so the two cannot drift.
+      - name: Check
+        run: make check
