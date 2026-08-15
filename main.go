@@ -15,6 +15,8 @@ import (
 	"github.com/afbackend/order-execution-engine/internal/processor"
 )
 
+const shutdownTimeout = 5 * time.Second
+
 func main() {
 
 	ctx := context.Background()
@@ -42,5 +44,15 @@ func main() {
 
 	log.Println("shutting down")
 
-	wg.Wait()
+	// Bound the wait: a wedged stage must not hang us until SIGKILL.
+	done := make(chan struct{})
+	go func() { wg.Wait(); close(done) }()
+
+	select {
+	case <-done:
+		log.Println("shutdown complete")
+	case <-time.After(shutdownTimeout):
+		log.Printf("shutdown timed out after %s, forcing exit", shutdownTimeout)
+		os.Exit(1)
+	}
 }
