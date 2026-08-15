@@ -41,12 +41,18 @@ func NewAccount(id int64) (*Account, error) {
 	return &Account{ID: id}, nil
 }
 
-func notional(price, qty int64, scale int64) (int64, error) {
+func notional(price, qty, scale int64) (int64, error) {
 	if price != 0 && (price*qty)/price != qty {
 		return 0, ErrNotionalOverflow
 	}
-	return (price*qty + scale - 1) / scale, nil
+	product := price * qty
+	result := product / scale
+	if product%scale != 0 {
+		result++ // ceil
+	}
+	return result, nil
 }
+
 func (ac *Account) SetBuyingPower(value int64) error {
 	if value < 0 {
 		return ErrInvalidBuyingPower
