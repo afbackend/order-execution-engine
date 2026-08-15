@@ -1,19 +1,21 @@
 package gateway
 
 import (
-	"context"
 	"log"
 
 	"github.com/afbackend/order-execution-engine/internal/account"
-	"github.com/afbackend/order-execution-engine/internal/processor"
 )
 
+type RiskProcessor interface {
+	RiskResult(result *account.RiskResult) error
+}
+
 type Gateway struct {
-	processor processor.RiskProcessor
+	processor RiskProcessor
 	in        <-chan *account.RiskResult
 }
 
-func NewGateway(in <-chan *account.RiskResult, processor processor.RiskProcessor) *Gateway {
+func NewDefaultGateway(in <-chan *account.RiskResult, processor RiskProcessor) *Gateway {
 	return &Gateway{in: in, processor: processor}
 }
 
@@ -24,7 +26,7 @@ func (g *Gateway) process(result *account.RiskResult) {
 	}
 }
 
-func (g *Gateway) Run(ctx context.Context) {
+func (g *Gateway) Run() {
 	for {
 		select {
 		case r, ok := <-g.in:
@@ -33,8 +35,6 @@ func (g *Gateway) Run(ctx context.Context) {
 			}
 
 			g.process(r)
-		case <-ctx.Done():
-			return
 		}
 	}
 }

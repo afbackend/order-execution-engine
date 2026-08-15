@@ -26,7 +26,6 @@ const (
 )
 
 type RiskResult struct {
-	ID      int64
 	OrderID int64
 	Status  RiskStatus
 	Reason  RiskReason
