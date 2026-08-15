@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/afbackend/order-execution-engine/internal/order"
+	"github.com/afbackend/pretrade-risk-engine/internal/order"
 )
 
 func TestActor(t *testing.T) {

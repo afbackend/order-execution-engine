@@ -1,6 +1,8 @@
-# order-execution-engine
+# pretrade-risk-engine
 
-An order execution engine in Go, built in stages. This first stage is the pre-trade risk gate: it ingests order intentions, applies risk checks against an account's buying power, and emits a verdict for each order — running as a continuous service with graceful shutdown. Order routing, venue execution, and fills are the next stage
+A pre-trade risk daemon written in Go. It ingests order intentions, applies risk
+checks against an account's buying power, and emits a verdict for each order —
+running as a continuous service that shuts down gracefully on signal.
 
 This is the execution-side counterpart to a separate Python strategy-research
 project. Strategy logic (evaluating market conditions) stays in Python where it
@@ -25,7 +27,7 @@ Three concurrent stages communicate over channels:
 - **processor** serializes each verdict as JSON (one object per line) to a
   writer — stdout in the daemon.
 
-The v1 boundary is deliberate: **intention in → risk verdict out.** No matching
+The boundary is deliberate: **intention in → risk verdict out.** No matching
 engine, no simulated fills, no real venue. See [ARCHITECTURE.md](ARCHITECTURE.md)
 for the design rationale and what is intentionally out of scope.
 
@@ -97,4 +99,6 @@ internal/
 
 ## Status
 
-The pre-trade risk stage is complete: the daemon runs, applies risk, and shuts down gracefully. Execution against a venue is the next stage — see the roadmap in [ARCHITECTURE.md]
+Complete for what it sets out to do: the daemon runs, applies pre-trade risk,
+and shuts down gracefully. See [ARCHITECTURE.md](ARCHITECTURE.md) for the design
+rationale, the known limitations, and where the project could go next.

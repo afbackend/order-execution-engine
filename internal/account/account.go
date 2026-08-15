@@ -3,7 +3,7 @@ package account
 import (
 	"errors"
 
-	"github.com/afbackend/order-execution-engine/internal/order"
+	"github.com/afbackend/pretrade-risk-engine/internal/order"
 )
 
 var ErrInvalidBuyingPower = errors.New("invalid buying power")

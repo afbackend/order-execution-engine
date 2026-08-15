@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/afbackend/order-execution-engine/internal/order"
+	"github.com/afbackend/pretrade-risk-engine/internal/order"
 )
 
 var ErrActorStopped = errors.New("actor stopped")

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/afbackend/order-execution-engine/internal/account"
+	"github.com/afbackend/pretrade-risk-engine/internal/account"
 )
 
 func TestDefault(t *testing.T) {

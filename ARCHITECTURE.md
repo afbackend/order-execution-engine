@@ -2,13 +2,9 @@
 
 ## Overview
 
-`order-execution-engine` is an order execution engine built in stages. The stage
-implemented today is **pre-trade risk**: it ingests order intentions, applies
-risk against an account's buying power, and emits a verdict for each order,
-running as a continuous daemon. Execution — routing approved orders to a venue
-and handling the fills that come back — is the committed next stage (see
-Roadmap). The project is named for its target; this document is explicit about
-which stage exists today.
+`pretrade-risk-engine` is the pre-trade risk stage of a trading system, running
+as a continuous daemon. It ingests order intentions, applies risk against an
+account's buying power, and emits a risk verdict for each order.
 
 Strategy research and validation live in a separate project
 (`trading-research-engine`, Python); this repo is the Go execution-side
@@ -20,29 +16,30 @@ The guiding split:
   data with walk-forward testing and look-ahead-bias controls. Answers *"does
   this strategy have edge?"*
 - **Execution side (Go, this repo):** takes an order intention and answers *"can
-  this order be accepted safely?"* — today via pre-trade risk; later, through
-  execution against a venue.
+  this order be accepted safely?"* — the pre-trade risk gate. What happens after
+  approval (routing to a venue, fills coming back) is a later stage of a fuller
+  system, out of scope here.
 
 Reimplementing strategy logic in Go would duplicate validated logic and risk
 silent divergence — a correctness bug in a financial system. Go owns the
 execution-side systems concerns: concurrency, atomic risk, service lifecycle.
 
-## Current boundary
+## The boundary
 
-> **Today: INTENTION in → RISK VERDICT out.**
+> **INTENTION in → RISK VERDICT out.**
 
 An intention (symbol, side, quantity, limit price) enters; a `RiskResult`
-(approved, or rejected with a reason) comes out. There is no matching engine, no
-simulated fills, and no real venue *yet* — those belong to the execution stage
-on the roadmap.
+(approved, or rejected with a reason) comes out. Everything after the verdict —
+routing approved orders to a venue, fills coming back — is out of scope. No
+matching engine, no simulated fills, no real venue.
 
-**Why no simulated fills today.** An earlier design had a simulated venue
+**Why the verdict, not a fill.** An earlier design had a simulated venue
 producing deterministic fills. It was removed: a locally-fabricated fill models
 nothing real — in production, fills are *received* from an exchange, not
 generated. Without a real venue or a post-trade stage to consume them, a
-simulated fill is an orphan datum. Fills will enter with the execution stage,
-where they originate from a venue (real or a faithful adapter), not from thin
-air.
+simulated fill is an orphan datum. Fills belong wherever they genuinely
+originate, which is not here. The honest, complete unit of work in this repo is
+the pre-trade risk verdict.
 
 ## Runtime: a continuous daemon
 
@@ -63,8 +60,8 @@ generator ──orders──▶ actor ──verdicts──▶ gateway ──▶ 
 - **actor** owns the account state in a single goroutine; processes orders one
   at a time, applying pre-trade risk; emits a `RiskResult` per order.
 - **gateway** reads verdicts from the actor and forwards each to a processor.
-  It knows nothing about how a verdict is persisted. In the execution stage this
-  is where routing to a venue would attach.
+  It knows nothing about how a verdict is persisted — which is also why it is
+  where routing to a venue would attach, in a system that had one.
 - **processor** (`DefaultProcessor`) serializes each verdict as JSON to an
   `io.Writer`, one object per line (JSON Lines).
 
@@ -141,10 +138,10 @@ large price and wrap to a negative notional, which `Reserve` would then approve
 `price*qty` multiplication itself. An astronomical price therefore yields a
 correct large notional that is rejected on its merits — **fail-closed**.
 
-**Planned evolution:** a dedicated `financial` package with a
+**Where this would go:** a dedicated `financial` package with a
 `Currency{ value int64; scale int }` type carrying its scale with the value,
-needed once multiple scales or currencies interact. Deferred: the v1 has a
-single implicit scale.
+needed once multiple scales or currencies interact. Deferred, since there is a
+single implicit scale today.
 
 ## Simplifications today (and why)
 
@@ -152,8 +149,8 @@ single implicit scale.
   exposure; there is no release. This models a spot-style *daily capital limit*,
   not margin trading. A consequence: once buying power is exhausted, all further
   orders are rejected — by design, though it can look like the daemon has died.
-  Position tracking and buying-power release arrive with the post-trade state on
-  the roadmap.
+  Releasing buying power would require position tracking and post-trade state,
+  neither of which belongs at this boundary.
 - **Side is preserved but does not affect risk.** A long-only
   capital-consumption model: `Side` is carried for forward compatibility, but
   long and short consume buying power identically and no net position is tracked.
@@ -176,20 +173,20 @@ responsibility, not by technical category — there is no `models/` or `types/`
 package, which is anti-idiomatic in Go. The `RiskProcessor` interface is
 declared in the package that consumes it, not the one that implements it.
 
-## Roadmap (committed next stages)
+## Possible next steps
 
-These are the stages that grow the project into its name. They are planned
-direction, not a promise of dates.
+Directions this could grow in. Listed to show where the design leads, not as a
+commitment.
 
-- **Execution gateway / venue adapter.** The stage the name points at: an API
-  that receives approved verdicts and routes orders to a venue (or a faithful
-  simulated one), then handles the acks and fills that come back. This is where
-  fills genuinely originate — received, not fabricated — and it brings
-  idempotency, reconciliation, and reconnect concerns.
+- **Execution gateway / venue adapter.** An API receiving approved verdicts and
+  routing orders to a venue (or a faithful simulated one), then handling the acks
+  and fills that come back. This is where fills genuinely originate — received,
+  not fabricated — and it brings idempotency, reconciliation, and reconnect
+  concerns.
 - **Position & post-trade state.** Positions, gross/net exposure, realized and
-  unrealized PnL, buying-power release. The richer account state that turns the
-  risk model from a capital counter into a real risk engine, and where `Side`
-  starts to matter.
+  unrealized PnL, buying-power release. The richer account state that would turn
+  the risk model from a capital counter into a full risk engine, and where `Side`
+  would start to matter.
 - **Concurrent risk invariants.** Property tests asserting that across any
   concurrent sequence of orders, exposure never exceeds its limit — proving
   correctness under concurrency rather than measuring throughput.

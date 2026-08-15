@@ -9,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/afbackend/order-execution-engine/internal/account"
-	"github.com/afbackend/order-execution-engine/internal/gateway"
-	"github.com/afbackend/order-execution-engine/internal/generator"
-	"github.com/afbackend/order-execution-engine/internal/processor"
+	"github.com/afbackend/pretrade-risk-engine/internal/account"
+	"github.com/afbackend/pretrade-risk-engine/internal/gateway"
+	"github.com/afbackend/pretrade-risk-engine/internal/generator"
+	"github.com/afbackend/pretrade-risk-engine/internal/processor"
 )
 
 const shutdownTimeout = 5 * time.Second

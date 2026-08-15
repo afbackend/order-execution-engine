@@ -3,7 +3,7 @@ package gateway
 import (
 	"log"
 
-	"github.com/afbackend/order-execution-engine/internal/account"
+	"github.com/afbackend/pretrade-risk-engine/internal/account"
 )
 
 type RiskProcessor interface {

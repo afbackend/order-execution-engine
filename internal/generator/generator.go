@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/afbackend/order-execution-engine/internal/account"
-	"github.com/afbackend/order-execution-engine/internal/order"
+	"github.com/afbackend/pretrade-risk-engine/internal/account"
+	"github.com/afbackend/pretrade-risk-engine/internal/order"
 )
 
 type Generator struct {

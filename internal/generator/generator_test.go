@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/afbackend/order-execution-engine/internal/account"
+	"github.com/afbackend/pretrade-risk-engine/internal/account"
 )
 
 func TestGeneratorSubmitsOrders(t *testing.T) {
