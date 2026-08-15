@@ -29,14 +29,7 @@ func (g *Gateway) process(result *account.RiskResult) {
 // Run drains until in closes. It must not select on ctx.Done(): exiting early
 // would strand the actor mid-send and hang shutdown.
 func (g *Gateway) Run() {
-	for {
-		select {
-		case r, ok := <-g.in:
-			if !ok {
-				return
-			}
-
-			g.process(r)
-		}
+	for r := range g.in {
+		g.process(r)
 	}
 }

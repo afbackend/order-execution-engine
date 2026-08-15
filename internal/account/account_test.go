@@ -20,8 +20,7 @@ func TestSetBuyingPower(t *testing.T) {
 
 	t.Run("Set BuyingPower", func(t *testing.T) {
 
-		var bp int64
-		bp = 1000
+		bp := int64(1000)
 
 		acc, err := NewAccount(1)
 
@@ -38,8 +37,7 @@ func TestSetBuyingPower(t *testing.T) {
 
 	t.Run("Set invalid BuyingPower", func(t *testing.T) {
 
-		var bp int64
-		bp = -1000 // Not allowed for now
+		bp := int64(-1000) // Not allowed for now
 
 		acc, err := NewAccount(1)
 
