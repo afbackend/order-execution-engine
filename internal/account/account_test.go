@@ -2,6 +2,7 @@ package account
 
 import (
 	"errors"
+	"math"
 	"testing"
 
 	"github.com/afbackend/order-execution-engine/internal/order"
@@ -67,6 +68,7 @@ func TestNotional(t *testing.T) {
 		{"rounds up half", 1050, 1, 11, nil},      // ceil: 1050→11
 		{"quantity multiplies", 1000, 3, 30, nil},
 		{"overflow", 9_000_000_000_000_000_000, 1000, 0, ErrNotionalOverflow},
+		{"max price computes correctly", math.MaxInt64, 1, 92233720368547759, nil},
 	}
 
 	for _, tt := range tests {
@@ -181,6 +183,25 @@ func TestRisk(t *testing.T) {
 		}
 		if before != acc.exposure {
 			t.Fatalf("rejected order must not debit: expected %d, got %d", before, acc.exposure)
+		}
+	})
+
+	t.Run("astronomical notional is rejected not approved", func(t *testing.T) {
+		acc, err := NewAccount(1)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		_ = acc.SetBuyingPower(1000)
+
+		ord, _ := order.NewOrder(1, math.MaxInt64, 1, "BTC", order.Long)
+
+		ok, err := acc.Reserve(ord)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if ok {
+			t.Fatal("order with astronomical notional must be rejected, not approved")
 		}
 	})
 }
