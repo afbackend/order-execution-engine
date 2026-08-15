@@ -8,12 +8,12 @@ import (
 	"github.com/afbackend/order-execution-engine/internal/account"
 )
 
-type RiskProcessor interface {
-	RiskResult(result *account.RiskResult) error
-}
-
 type DefaultProcessor struct {
 	buffer io.Writer
+}
+
+func NewDefault(buffer io.Writer) DefaultProcessor {
+	return DefaultProcessor{buffer: buffer}
 }
 
 func (d *DefaultProcessor) RiskResult(result *account.RiskResult) error {

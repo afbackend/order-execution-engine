@@ -34,7 +34,7 @@ func TestRisk(t *testing.T) {
 			want := []account.RiskResult{*rResult}
 
 			spy := SpyProcessor{}
-			g := NewGateway(nil, &spy)
+			g := NewDefaultGateway(nil, &spy)
 			g.process(rResult)
 
 			got := spy.results
@@ -51,7 +51,7 @@ func TestRisk(t *testing.T) {
 		want := []account.RiskResult{*ResultRejected, *ResultAccepted}
 
 		spy := SpyProcessor{}
-		g := NewGateway(nil, &spy)
+		g := NewDefaultGateway(nil, &spy)
 		g.process(ResultRejected)
 		g.process(ResultAccepted)
 
